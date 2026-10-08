@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Righter</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column. Account bar on top, then one row per newsletter (masthead left, actions right), then the add form. */
+html { color-scheme: light dark; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+:root {
+  --bg: #eef1f3;
+  --surface: #ffffff;
+  --ink: #14212b;
+  --muted: #5a6975;
+  --line: #d3dae0;
+  --accent: #0b6e69;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefed;
+  --danger: #a3341f;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #18222a; --ink: #e6edf1; --muted: #93a3af; --line: #2b3944;
+    --accent: #4fc4bb; --accent-ink: #06201e; --accent-soft: #17383a; --danger: #f08a73;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #18222a; --ink: #e6edf1; --muted: #93a3af; --line: #2b3944;
+  --accent: #4fc4bb; --accent-ink: #06201e; --accent-soft: #17383a; --danger: #f08a73;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 56px; display: flex; flex-direction: column; gap: 28px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-end; justify-content: space-between; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 46ch; }
+.account { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 500 14px/1 var(--body); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--muted); padding-inline: 8px; }
+.btn.quiet:hover { color: var(--ink); }
+.btn.danger { color: var(--danger); }
+
+.label { font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 0; }
+#list { display: flex; flex-direction: column; gap: 12px; }
+.row { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 20px; align-items: center; }
+.mast { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.mark { flex: none; width: 44px; height: 44px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font: 700 20px/1 var(--display); }
+.name { font: 700 20px/1.2 var(--display); margin: 0; overflow-wrap: anywhere; }
+.host { font: 400 13px/1.4 var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.main-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.more { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; }
+.more a { text-decoration: none; }
+.more a:hover { text-decoration: underline; }
+.more .spacer { flex: 1; }
+.confirm { color: var(--muted); font-size: 14px; }
+@media (max-width: 620px) {
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .main-actions .btn { flex: 1; }
+  h1 { font-size: 28px; }
+}
+
+.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 28px 20px; color: var(--muted); text-align: left; }
+.empty strong { color: var(--ink); font-family: var(--display); font-size: 18px; display: block; margin-bottom: 4px; }
+
+form.add { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 500; }
+.field input { font: 400 15px/1.2 var(--body); padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
+#f-host { font-family: var(--mono); font-size: 14px; }
+.form-foot { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.msg { font-size: 14px; color: var(--muted); min-width: 0; }
+.msg.err { color: var(--danger); }
+.note { color: var(--muted); font-size: 13.5px; max-width: 70ch; margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Righter</h1>
+      <p class="sub">Every Substack you run, one click from its page or a blank draft.</p>
+    </div>
+    <nav class="account" aria-label="Substack account">
+      <a class="btn" href="https://substack.com/sign-in" target="_blank" rel="noopener">Sign in</a>
+      <a class="btn" href="https://substack.com/settings" target="_blank" rel="noopener">Account</a>
+      <a class="btn" href="https://substack.com/sign-out" target="_blank" rel="noopener">Sign out</a>
+    </nav>
+  </header>
+
+  <section aria-labelledby="l-list" style="display:flex;flex-direction:column;gap:12px">
+    <p class="label" id="l-list">Your newsletters <span id="count"></span></p>
+    <div id="list">
+      <div class="empty" id="empty"><strong>No newsletters here yet</strong>Add one below with its name and Substack address. It will show up here with links to its page, a new post, stats, and subscribers.</div>
+    </div>
+  </section>
+
+  <form class="add" id="add" novalidate>
+    <p class="label" id="form-title">Add a newsletter</p>
+    <div class="fields">
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" type="text" maxlength="80" placeholder="HackPulse" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="f-host">Substack address</label>
+        <input id="f-host" type="text" maxlength="120" placeholder="yourname.substack.com" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+    </div>
+    <div class="form-foot">
+      <button class="btn primary" type="submit" id="save">Add newsletter</button>
+      <button class="btn quiet" type="button" id="cancel" hidden>Cancel</button>
+      <span class="msg" id="msg" role="status"></span>
+    </div>
+  </form>
+
+  <p class="note">Signing in and out happens on Substack, in a new tab. One Substack sign-in covers every newsletter that account owns or is on the team of, so you only sign in once. Newsletters on a different Substack account need that account signed in instead.</p>
+</div>
+
+<script>
+(function () {
+  var listEl = document.getElementById('list'), emptyEl = document.getElementById('empty');
+  var form = document.getElementById('add'), fName = document.getElementById('f-name'), fHost = document.getElementById('f-host');
+  var msg = document.getElementById('msg'), saveBtn = document.getElementById('save'), cancelBtn = document.getElementById('cancel');
+  var formTitle = document.getElementById('form-title'), countEl = document.getElementById('count');
+  var LS = 'newsletter-desk-v1';
+  var db = null, items = [], editingId = null, confirmingId = null;
+
+  function parseHost(raw) {
+    var s = String(raw || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
+    s = s.split(/[\/?#]/)[0];
+    if (!s) return { error: 'Enter the Substack address, like yourname.substack.com.' };
+    if (s === 'substack.com') return { error: 'That is Substack itself. Use the newsletter address, like yourname.substack.com.' };
+    if (s.indexOf('.') === -1) {
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(s)) return { error: 'That address has characters Substack does not allow.' };
+      return { host: s + '.substack.com' };
+    }
+    if (!/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(s)) return { error: 'That does not look like a web address.' };
+    return { host: s };
+  }
+
+  function link(text, href, cls) {
+    var a = document.createElement('a');
+    a.textContent = text; a.href = href; a.target = '_blank'; a.rel = 'noopener';
+    if (cls) a.className = cls;
+    return a;
+  }
+  function button(text, cls, fn) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = text; b.className = cls; b.addEventListener('click', fn);
+    return b;
+  }
+
+  function render() {
+    listEl.querySelectorAll('.row').forEach(function (n) { n.remove(); });
+    emptyEl.hidden = items.length > 0;
+    countEl.textContent = items.length ? '(' + items.length + ')' : '';
+    items.forEach(function (it) {
+      var base = 'https://' + it.host;
+      var row = document.createElement('article'); row.className = 'row';
+
+      var mast = document.createElement('div'); mast.className = 'mast';
+      var mark = document.createElement('div'); mark.className = 'mark'; mark.setAttribute('aria-hidden', 'true');
+      mark.textContent = (it.name || '?').trim().charAt(0).toUpperCase();
+      var txt = document.createElement('div'); txt.style.minWidth = '0';
+      var h = document.createElement('h2'); h.className = 'name';
+      var hl = link(it.name, base + '/'); hl.style.color = 'inherit'; hl.style.textDecoration = 'none'; h.append(hl);
+      var host = document.createElement('div'); host.className = 'host'; host.textContent = it.host;
+      txt.append(h, host); mast.append(mark, txt);
+
+      var main = document.createElement('div'); main.className = 'main-actions';
+      main.append(link('Open newsletter', base + '/', 'btn primary'), link('New post', base + '/publish/post?type=newsletter', 'btn'));
+
+      var more = document.createElement('div'); more.className = 'more';
+      more.append(
+        link('Dashboard', base + '/publish/home'),
+        link('Posts', base + '/publish/posts'),
+        link('Stats', base + '/publish/stats'),
+        link('Subscribers', base + '/publish/subscribers'),
+        link('Settings', base + '/publish/settings')
+      );
+      var sp = document.createElement('span'); sp.className = 'spacer'; more.append(sp);
+      if (confirmingId === it.id) {
+        var c = document.createElement('span'); c.className = 'confirm'; c.textContent = 'Remove from this page?';
+        more.append(c,
+          button('Remove', 'btn quiet danger', function () { confirmingId = null; removeItem(it.id); }),
+          button('Keep', 'btn quiet', function () { confirmingId = null; render(); }));
+      } else {
+        more.append(
+          button('Edit', 'btn quiet', function () { startEdit(it); }),
+          button('Remove', 'btn quiet', function () { confirmingId = it.id; render(); }));
+      }
+      row.append(mast, main, more);
+      listEl.append(row);
+    });
+  }
+
+  function say(text, isErr) { msg.textContent = text || ''; msg.className = 'msg' + (isErr ? ' err' : ''); }
+
+  function startEdit(it) {
+    editingId = it.id; fName.value = it.name; fHost.value = it.host;
+    formTitle.textContent = 'Edit newsletter'; saveBtn.textContent = 'Save changes'; cancelBtn.hidden = false;
+    say(''); fName.focus();
+  }
+  function resetForm() {
+    editingId = null; form.reset();
+    formTitle.textContent = 'Add a newsletter'; saveBtn.textContent = 'Add newsletter'; cancelBtn.hidden = true;
+  }
+  cancelBtn.addEventListener('click', function () { resetForm(); say(''); });
+
+  var DEFAULTS = [
+    { id: 'goblinlabs', name: 'Goblin Labs', host: 'goblinlabs.substack.com', createdAt: 1 },
+    { id: 'hackpulse', name: 'HackPulse', host: 'obinnaamadie.substack.com', createdAt: 2 }
+  ];
+  function loadLocal() {
+    try { var raw = localStorage.getItem(LS); if (raw) return JSON.parse(raw) || []; } catch (e) {}
+    return DEFAULTS.map(function (x) { return Object.assign({}, x); });
+  }
+  function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(items)); } catch (e) {} }
+  function sortItems() { items.sort(function (a, b) { return (a.createdAt || 0) - (b.createdAt || 0); }); }
+
+  async function removeItem(id) {
+    if (db) {
+      try { await db.collection('newsletters').doc(id).delete(); say('Removed.'); }
+      catch (e) { say('Could not remove it. Try again in a moment.', true); render(); }
+    } else {
+      items = items.filter(function (x) { return x.id !== id; }); saveLocal(); render(); say('Removed.');
+    }
+    if (editingId === id) resetForm();
+  }
+
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var name = fName.value.trim();
+    if (!name) { say('Give the newsletter a name.', true); fName.focus(); return; }
+    var p = parseHost(fHost.value);
+    if (p.error) { say(p.error, true); fHost.focus(); return; }
+    var dup = items.find(function (x) { return x.host === p.host && x.id !== editingId; });
+    if (dup) { say(p.host + ' is already listed as ' + dup.name + '.', true); return; }
+    saveBtn.disabled = true;
+    try {
+      if (editingId) {
+        if (db) await db.collection('newsletters').doc(editingId).update({ name: name, host: p.host });
+        else { items.forEach(function (x) { if (x.id === editingId) { x.name = name; x.host = p.host; } }); saveLocal(); render(); }
+        say('Saved.');
+      } else {
+        var body = { name: name, host: p.host, createdAt: Date.now() };
+        if (db) await db.collection('newsletters').add(body);
+        else { body.id = 'n' + Date.now().toString(36); items.push(body); saveLocal(); render(); }
+        say('Added ' + name + '.');
+      }
+      resetForm();
+    } catch (e) {
+      say(e && e.code === 'invalid_argument' ? 'You have view-only access to this page, so it cannot be changed here.' : 'Could not save. Try again in a moment.', true);
+    }
+    saveBtn.disabled = false;
+  });
+
+  function startLocal() { items = loadLocal(); sortItems(); render(); }
+
+  async function start() {
+    render();
+    try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
+    if (!db) { startLocal(); return; }
+    db.collection('newsletters').onSnapshot(function (snap) {
+      items = snap.docs.map(function (d) {
+        var v = d.data() || {};
+        return { id: d.id, name: String(v.name || 'Untitled'), host: String(v.host || ''), createdAt: Number(v.createdAt) || 0 };
+      }).filter(function (x) { return !parseHost(x.host).error; });
+      sortItems(); render();
+    }, function () { db = null; startLocal(); });
+  }
+  start();
+})();
+</script>
+</body>
+</html>
